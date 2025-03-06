@@ -27,7 +27,7 @@
             const hls = new Hls();
 
             // URL del archivo M3U8
-            const m3u8Url = 'https://rudo.video/live/smil:tv.smil/playlist.m3u8'; // Reemplaza con tu URL M3U8
+            const m3u8Url = 'https://streamer1.nexgen.bz/HBO_PLUS/tracks-v1a2/mono.m3u8'; // Reemplaza con tu URL M3U8
 
             // Cargar el archivo M3U8
             hls.loadSource(m3u8Url);
@@ -46,7 +46,7 @@
             });
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             // Soporte nativo para HLS (Safari, algunos navegadores móviles)
-            video.src = https://streamer1.nexgen.bz/HBO_PLUS/tracks-v1a2/mono.m3u8;
+            video.src = m3u8Url;
             video.addEventListener('loadedmetadata', function () {
                 video.play();
             });
