@@ -17,19 +17,6 @@
             flex-direction: column;
             align-items: center;
         }
-        #video-container {
-            width: 80%;
-            max-width: 800px;
-            background-color: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
-        }
-        .video-js {
-            width: 100%;
-            height: auto;
-        }
         #channel-list {
             width: 80%;
             max-width: 800px;
@@ -37,6 +24,7 @@
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
         }
         #channel-list h2 {
             margin-top: 0;
@@ -76,6 +64,18 @@
         #add-m3u button:hover {
             background-color: #0056b3;
         }
+        #video-container {
+            width: 80%;
+            max-width: 800px;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .video-js {
+            width: 100%;
+            height: auto;
+        }
         #status {
             color: white;
             text-align: center;
@@ -86,12 +86,7 @@
 </head>
 <body>
     <div id="container">
-        <div id="video-container">
-            <video id="video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264">
-                <source src="" type="application/x-mpegURL">
-            </video>
-            <div id="status">Esperando lista M3U...</div>
-        </div>
+        <!-- Lista de canales arriba -->
         <div id="channel-list">
             <h2>Canales Disponibles</h2>
             <div id="channels">
@@ -101,6 +96,14 @@
                 <input type="text" id="m3u-url" placeholder="Pega aquí el enlace de la lista M3U">
                 <button onclick="loadM3U()">Cargar Lista</button>
             </div>
+        </div>
+
+        <!-- Reproductor de video abajo -->
+        <div id="video-container">
+            <video id="video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264">
+                <source src="" type="application/x-mpegURL">
+            </video>
+            <div id="status">Esperando lista M3U...</div>
         </div>
     </div>
 
