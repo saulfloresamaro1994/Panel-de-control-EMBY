@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Video Mejorado</title>
+    <title>Reproductor Universal</title>
     <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet" />
     <style>
         body {
@@ -45,11 +45,11 @@
 
     <script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/4.5.0/dash.all.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const videoUrl = 'http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9676'; // Tu enlace MPEG
+            const videoUrl = 'http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9676'; // Tu enlace
             const status = document.getElementById('status');
-
             const player = videojs('video', {
                 controls: true,
                 autoplay: true,
@@ -57,64 +57,77 @@
                 techOrder: ['html5'],
                 sources: [{
                     src: videoUrl,
-                    type: 'application/x-mpegURL'
+                    type: 'application/x-mpegURL' // Tipo por defecto para HLS
                 }]
             });
 
-            // Verificar si el navegador soporta HLS de forma nativa
-            if (videojs.browser.IS_SAFARI) {
-                player.src({ src: videoUrl, type: 'application/x-mpegURL' });
-            } else {
-                // Usar hls.js para navegadores que no soportan HLS nativamente
-                if (Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.loadSource(videoUrl);
-                    hls.attachMedia(player.tech().el());
-                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                        status.textContent = 'Video listo para reproducir';
+            // Detectar el formato del stream y configurar el reproductor
+            function setupPlayer(url) {
+                if (url.includes('.m3u8')) {
+                    // HLS Stream
+                    if (Hls.isSupported()) {
+                        const hls = new Hls();
+                        hls.loadSource(url);
+                        hls.attachMedia(player.tech().el());
+                        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                            status.textContent = 'Video listo para reproducir (HLS)';
+                        });
+                        hls.on(Hls.Events.ERROR, function (event, data) {
+                            handleError('HLS', data);
+                        });
+                    } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                        // Soporte nativo para HLS (Safari)
+                        player.src({ src: url, type: 'application/x-mpegURL' });
+                        status.textContent = 'Video listo para reproducir (HLS nativo)';
+                    } else {
+                        status.textContent = 'Tu navegador no soporta HLS.';
+                    }
+                } else if (url.includes('.mpd')) {
+                    // MPEG-DASH Stream
+                    const dash = dashjs.MediaPlayer().create();
+                    dash.initialize(player.tech().el(), url, true);
+                    dash.on('error', function (e) {
+                        handleError('DASH', e);
                     });
-                    hls.on(Hls.Events.ERROR, function (event, data) {
-                        if (data.fatal) {
-                            switch (data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    status.textContent = 'Error de red. Intentando reconectar...';
-                                    hls.startLoad();
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    status.textContent = 'Error de video. Recargando...';
-                                    hls.recoverMediaError();
-                                    break;
-                                default:
-                                    hls.destroy();
-                                    status.textContent = 'Error crítico. No se puede reproducir el video.';
-                                    break;
-                            }
-                        }
-                    });
+                    status.textContent = 'Video listo para reproducir (DASH)';
+                } else if (url.includes('.mp4') || url.includes('.mkv')) {
+                    // MP4 o MKV Stream
+                    player.src({ src: url, type: 'video/mp4' });
+                    status.textContent = 'Video listo para reproducir (MP4/MKV)';
                 } else {
-                    status.textContent = 'Tu navegador no soporta la reproducción de video HLS.';
+                    status.textContent = 'Formato de video no compatible.';
                 }
             }
 
-            player.on('error', function () {
-                const error = player.error();
-                switch (error.code) {
-                    case 1:
-                        status.textContent = 'Error: El video no se pudo cargar. Verifica la URL.';
-                        break;
-                    case 2:
-                        status.textContent = 'Error: El formato de video no es compatible.';
-                        break;
-                    case 3:
-                        status.textContent = 'Error: El video no se pudo descargar debido a un problema de red.';
-                        break;
-                    case 4:
-                        status.textContent = 'Error: El video no se puede reproducir.';
-                        break;
-                    default:
-                        status.textContent = 'Error desconocido.';
-                        break;
+            // Manejo de errores
+            function handleError(format, error) {
+                console.error(`Error en ${format}:`, error);
+                status.textContent = `Error: No se puede reproducir el video (${format}).`;
+            }
+
+            // Detectar si el stream es en vivo
+            function checkIfLive() {
+                const duration = player.duration();
+                if (duration === Infinity) {
+                    status.textContent += ' - Transmisión en vivo';
+                } else {
+                    status.textContent += ' - Video bajo demanda';
                 }
+            }
+
+            // Inicializar el reproductor
+            setupPlayer(videoUrl);
+
+            // Verificar si el stream es en vivo
+            player.on('loadedmetadata', function () {
+                checkIfLive();
+            });
+
+            // Retroalimentación de la transición del vídeo
+            player.on('timeupdate', function () {
+                const currentTime = player.currentTime();
+                const duration = player.duration();
+                console.log(`Tiempo actual: ${currentTime} / Duración: ${duration}`);
             });
         });
     </script>
