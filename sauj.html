@@ -86,22 +86,27 @@
         #load-button:hover {
             background-color: #0056b3;
         }
+        #scan-status {
+            margin-top: 10px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
     <div id="container">
         <div id="input-container">
             <input type="text" id="m3u-link" placeholder="Ingrese el enlace de la lista M3U">
-            <button id="load-button" onclick="loadM3U()">Cargar Lista</button>
+            <button id="load-button" onclick="loadM3U()">Cargar y Escanear Lista</button>
+            <div id="scan-status">Esperando lista M3U...</div>
         </div>
         <div id="video-container">
             <video id="video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264">
                 <source src="" type="application/x-mpegURL">
             </video>
-            <div id="status">Esperando lista M3U...</div>
+            <div id="status">Esperando selección de canal...</div>
         </div>
         <div id="channel-list">
-            <h2>Canales Disponibles</h2>
+            <h2>Canales Escaneados</h2>
             <div id="channels">
                 <!-- Aquí se cargarán los canales -->
             </div>
@@ -113,6 +118,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const status = document.getElementById('status');
+            const scanStatus = document.getElementById('scan-status');
             const channelsContainer = document.getElementById('channels');
             const player = videojs('video', {
                 controls: true,
@@ -122,24 +128,25 @@
                 sources: []
             });
 
-            // Cargar lista M3U
+            // Cargar y escanear lista M3U
             function loadM3U() {
                 const m3uUrl = document.getElementById('m3u-link').value;
                 if (!m3uUrl) {
-                    status.textContent = 'Por favor, ingrese un enlace válido.';
+                    scanStatus.textContent = 'Por favor, ingrese un enlace válido.';
                     return;
                 }
 
+                scanStatus.textContent = 'Escaneando lista M3U...';
                 fetch(m3uUrl)
                     .then(response => response.text())
                     .then(data => {
                         const channels = parseM3U(data);
                         displayChannels(channels);
-                        status.textContent = `Canales cargados: ${channels.length}`;
+                        scanStatus.textContent = `Canales escaneados: ${channels.length}`;
                     })
                     .catch(error => {
                         console.error('Error al cargar la lista M3U:', error);
-                        status.textContent = 'Error al cargar la lista de canales.';
+                        scanStatus.textContent = 'Error al cargar la lista de canales.';
                     });
             }
 
