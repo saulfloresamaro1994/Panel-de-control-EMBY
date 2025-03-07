@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor Universal</title>
+    <title>Reproductor de Lista M3U</title>
     <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet" />
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            padding: 20px;
             background-color: #f0f0f0;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         #video-container {
             width: 80%;
@@ -22,10 +24,34 @@
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
         }
         .video-js {
             width: 100%;
             height: auto;
+        }
+        #channel-list {
+            width: 80%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #channel-list h2 {
+            margin-top: 0;
+        }
+        #channels {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .channel-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .channel-item:hover {
+            background-color: #f9f9f9;
         }
         #status {
             color: white;
@@ -36,99 +62,112 @@
     </style>
 </head>
 <body>
-    <div id="video-container">
-        <video id="video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264">
-            <source src="http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9676" type="application/x-mpegURL">
-        </video>
-        <div id="status">Cargando video...</div>
+    <div id="container">
+        <div id="video-container">
+            <video id="video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264">
+                <source src="" type="application/x-mpegURL">
+            </video>
+            <div id="status">Cargando reproductor...</div>
+        </div>
+        <div id="channel-list">
+            <h2>Canales Disponibles</h2>
+            <div id="channels">
+                <!-- Aquí se cargarán los canales -->
+            </div>
+        </div>
     </div>
 
     <script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dashjs/4.5.0/dash.all.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const videoUrl = 'http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9676'; // Tu enlace
+            const videoUrl = ''; // URL del stream (se actualiza al seleccionar un canal)
             const status = document.getElementById('status');
+            const channelsContainer = document.getElementById('channels');
             const player = videojs('video', {
                 controls: true,
                 autoplay: true,
                 preload: 'auto',
                 techOrder: ['html5'],
-                sources: [{
-                    src: videoUrl,
-                    type: 'application/x-mpegURL' // Tipo por defecto para HLS
-                }]
+                sources: []
             });
 
-            // Detectar el formato del stream y configurar el reproductor
-            function setupPlayer(url) {
-                if (url.includes('.m3u8')) {
-                    // HLS Stream
-                    if (Hls.isSupported()) {
-                        const hls = new Hls();
-                        hls.loadSource(url);
-                        hls.attachMedia(player.tech().el());
-                        hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                            status.textContent = 'Video listo para reproducir (HLS)';
-                        });
-                        hls.on(Hls.Events.ERROR, function (event, data) {
-                            handleError('HLS', data);
-                        });
-                    } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-                        // Soporte nativo para HLS (Safari)
-                        player.src({ src: url, type: 'application/x-mpegURL' });
-                        status.textContent = 'Video listo para reproducir (HLS nativo)';
-                    } else {
-                        status.textContent = 'Tu navegador no soporta HLS.';
+            // Cargar lista M3U
+            const m3uUrl = 'https://raw.githubusercontent.com/saulfloresamaro1994/SKINHEAD94/refs/heads/main/SKINTV5.m3u';
+            fetch(m3uUrl)
+                .then(response => response.text())
+                .then(data => {
+                    const channels = parseM3U(data);
+                    displayChannels(channels);
+                })
+                .catch(error => {
+                    console.error('Error al cargar la lista M3U:', error);
+                    status.textContent = 'Error al cargar la lista de canales.';
+                });
+
+            // Parsear lista M3U
+            function parseM3U(data) {
+                const lines = data.split('\n');
+                const channels = [];
+                let channel = {};
+
+                lines.forEach(line => {
+                    if (line.startsWith('#EXTINF:')) {
+                        const info = line.split(',');
+                        channel.name = info[1].trim();
+                        channel.logo = info[0].split('tvg-logo="')[1]?.split('"')[0] || '';
+                    } else if (line.startsWith('http')) {
+                        channel.url = line.trim();
+                        channels.push(channel);
+                        channel = {};
                     }
-                } else if (url.includes('.mpd')) {
-                    // MPEG-DASH Stream
-                    const dash = dashjs.MediaPlayer().create();
-                    dash.initialize(player.tech().el(), url, true);
-                    dash.on('error', function (e) {
-                        handleError('DASH', e);
+                });
+
+                // Ordenar canales por nombre
+                channels.sort((a, b) => a.name.localeCompare(b.name));
+                return channels;
+            }
+
+            // Mostrar canales en la lista
+            function displayChannels(channels) {
+                channelsContainer.innerHTML = '';
+                channels.forEach(channel => {
+                    const channelItem = document.createElement('div');
+                    channelItem.className = 'channel-item';
+                    channelItem.innerHTML = `
+                        <strong>${channel.name}</strong>
+                        ${channel.logo ? `<img src="${channel.logo}" alt="${channel.name}" width="50" style="margin-left: 10px;">` : ''}
+                    `;
+                    channelItem.addEventListener('click', () => playChannel(channel.url));
+                    channelsContainer.appendChild(channelItem);
+                });
+            }
+
+            // Reproducir un canal
+            function playChannel(url) {
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(player.tech().el());
+                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                        status.textContent = 'Reproduciendo...';
                     });
-                    status.textContent = 'Video listo para reproducir (DASH)';
-                } else if (url.includes('.mp4') || url.includes('.mkv')) {
-                    // MP4 o MKV Stream
-                    player.src({ src: url, type: 'video/mp4' });
-                    status.textContent = 'Video listo para reproducir (MP4/MKV)';
+                    hls.on(Hls.Events.ERROR, function (event, data) {
+                        handleError('HLS', data);
+                    });
+                } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                    player.src({ src: url, type: 'application/x-mpegURL' });
+                    status.textContent = 'Reproduciendo...';
                 } else {
-                    status.textContent = 'Formato de video no compatible.';
+                    status.textContent = 'Tu navegador no soporta HLS.';
                 }
             }
 
             // Manejo de errores
             function handleError(format, error) {
                 console.error(`Error en ${format}:`, error);
-                status.textContent = `Error: No se puede reproducir el video (${format}).`;
+                status.textContent = `Error: No se puede reproducir el canal (${format}).`;
             }
-
-            // Detectar si el stream es en vivo
-            function checkIfLive() {
-                const duration = player.duration();
-                if (duration === Infinity) {
-                    status.textContent += ' - Transmisión en vivo';
-                } else {
-                    status.textContent += ' - Video bajo demanda';
-                }
-            }
-
-            // Inicializar el reproductor
-            setupPlayer(videoUrl);
-
-            // Verificar si el stream es en vivo
-            player.on('loadedmetadata', function () {
-                checkIfLive();
-            });
-
-            // Retroalimentación de la transición del vídeo
-            player.on('timeupdate', function () {
-                const currentTime = player.currentTime();
-                const duration = player.duration();
-                console.log(`Tiempo actual: ${currentTime} / Duración: ${duration}`);
-            });
         });
     </script>
 </body>
