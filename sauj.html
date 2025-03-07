@@ -49,16 +49,9 @@
             padding: 10px;
             border-bottom: 1px solid #ddd;
             cursor: pointer;
-            display: flex;
-            align-items: center;
         }
         .channel-item:hover {
             background-color: #f9f9f9;
-        }
-        .channel-item img {
-            margin-left: 10px;
-            width: 50px;
-            height: auto;
         }
         #status {
             color: white;
@@ -88,6 +81,7 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const videoUrl = ''; // URL del stream (se actualiza al seleccionar un canal)
             const status = document.getElementById('status');
             const channelsContainer = document.getElementById('channels');
             const player = videojs('video', {
@@ -105,7 +99,6 @@
                 .then(data => {
                     const channels = parseM3U(data);
                     displayChannels(channels);
-                    status.textContent = 'Lista de canales cargada. Selecciona un canal para reproducir.';
                 })
                 .catch(error => {
                     console.error('Error al cargar la lista M3U:', error);
@@ -120,7 +113,7 @@
 
                 lines.forEach(line => {
                     if (line.startsWith('#EXTINF:')) {
-                        const info = line.split(',');
+const info = line.split(',');
                         channel.name = info[1].trim();
                         channel.logo = info[0].split('tvg-logo="')[1]?.split('"')[0] || '';
                     } else if (line.startsWith('http')) {
@@ -143,7 +136,7 @@
                     channelItem.className = 'channel-item';
                     channelItem.innerHTML = 
                         <strong>${channel.name}</strong>
-                        ${channel.logo ? <img src="${channel.logo}" alt="${channel.name}" width="50"> : ''}
+                        ${channel.logo ? <img src="${channel.logo}" alt="${channel.name}" width="50" style="margin-left: 10px;"> : ''}
                     ;
                     channelItem.addEventListener('click', () => playChannel(channel.url));
                     channelsContainer.appendChild(channelItem);
