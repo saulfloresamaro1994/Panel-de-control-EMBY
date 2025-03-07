@@ -72,3 +72,28 @@ footer {
   bottom: 0;
   width: 100%;
 }
+// script.js
+// Ejemplo: Cambiar entre diferentes streams
+const videoPlayer = videojs('my-video');
+
+const streams = {
+  HBO PLU: 'https://streamer1.nexgen.bz/HBO_PLUS/tracks-v1a2/mono.m3u8',
+  HBO XTREME: 'https://streamer1.nexgen.bz/HBO_XTREME/tracks-v1a2/mono.m3u8',
+  HBO FAMILY: 'https://streamer1.nexgen.bz/HBO_FAMILY/tracks-v1a2/mono.m3u8',
+};
+
+function cambiarCanal(canal) {
+  videoPlayer.src({ src: streams[canal], type: 'application/x-mpegURL' });
+  videoPlayer.play();
+}
+
+// Ejemplo: Botones para cambiar de canal
+document.addEventListener('DOMContentLoaded', () => {
+  const botones = document.createElement('div');
+  botones.innerHTML = 
+    <button onclick="cambiarCanal('HBO PLU')">Canal 1</button>
+    <button onclick="cambiarCanal('HBO XTREME')">Canal 2</button>
+    <button onclick="cambiarCanal('HBO FAMILY')">Canal 3</button>
+  ;
+  document.querySelector('main').appendChild(botones);
+});
