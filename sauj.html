@@ -44,38 +44,28 @@
         #channels {
             max-height: 300px;
             overflow-y: auto;
+            margin-bottom: 20px;
         }
         .channel-item {
             padding: 10px;
             border-bottom: 1px solid #ddd;
             cursor: pointer;
-            display: flex;
-            align-items: center;
         }
         .channel-item:hover {
             background-color: #f9f9f9;
         }
-        .channel-item img {
-            margin-left: 10px;
-            width: 50px;
-            height: auto;
+        #add-m3u {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
         }
-        #status {
-            color: white;
-            text-align: center;
+        #add-m3u input {
+            flex: 1;
             padding: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-        #input-container {
-            margin-bottom: 20px;
-        }
-        #m3u-link {
-            width: 300px;
-            padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 5px;
         }
-        #load-button {
+        #add-m3u button {
             padding: 10px 20px;
             background-color: #007bff;
             color: white;
@@ -83,32 +73,33 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        #load-button:hover {
+        #add-m3u button:hover {
             background-color: #0056b3;
         }
-        #scan-status {
-            margin-top: 10px;
-            color: #333;
+        #status {
+            color: white;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <div id="input-container">
-            <input type="text" id="m3u-link" placeholder="Ingrese el enlace de la lista M3U">
-            <button id="load-button" onclick="loadM3U()">Cargar y Escanear Lista</button>
-            <div id="scan-status">Esperando lista M3U...</div>
-        </div>
         <div id="video-container">
             <video id="video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264">
                 <source src="" type="application/x-mpegURL">
             </video>
-            <div id="status">Esperando selección de canal...</div>
+            <div id="status">Esperando lista M3U...</div>
         </div>
         <div id="channel-list">
-            <h2>Canales Escaneados</h2>
+            <h2>Canales Disponibles</h2>
             <div id="channels">
                 <!-- Aquí se cargarán los canales -->
+            </div>
+            <div id="add-m3u">
+                <input type="text" id="m3u-url" placeholder="Pega aquí el enlace de la lista M3U">
+                <button onclick="loadM3U()">Cargar Lista</button>
             </div>
         </div>
     </div>
@@ -118,7 +109,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const status = document.getElementById('status');
-            const scanStatus = document.getElementById('scan-status');
             const channelsContainer = document.getElementById('channels');
             const player = videojs('video', {
                 controls: true,
@@ -128,27 +118,27 @@
                 sources: []
             });
 
-            // Cargar y escanear lista M3U
-            function loadM3U() {
-                const m3uUrl = document.getElementById('m3u-link').value;
-                if (!m3uUrl) {
-                    scanStatus.textContent = 'Por favor, ingrese un enlace válido.';
-                    return;
-                }
+            let channels = []; // Lista de canales
 
-                scanStatus.textContent = 'Escaneando lista M3U...';
-                fetch(m3uUrl)
-                    .then(response => response.text())
-                    .then(data => {
-                        const channels = parseM3U(data);
-                        displayChannels(channels);
-                        scanStatus.textContent = `Canales escaneados: ${channels.length}`;
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar la lista M3U:', error);
-                        scanStatus.textContent = 'Error al cargar la lista de canales.';
-                    });
-            }
+            // Función para cargar una lista M3U
+            window.loadM3U = function () {
+                const url = document.getElementById('m3u-url').value.trim();
+                if (url && url.startsWith('http')) {
+                    fetch(url)
+                        .then(response => response.text())
+                        .then(data => {
+                            channels = parseM3U(data);
+                            displayChannels(channels);
+                            status.textContent = 'Lista M3U cargada correctamente.';
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar la lista M3U:', error);
+                            status.textContent = 'Error al cargar la lista M3U.';
+                        });
+                } else {
+                    alert('Por favor, ingresa una URL válida.');
+                }
+            };
 
             // Parsear lista M3U
             function parseM3U(data) {
@@ -179,10 +169,10 @@
                 channels.forEach(channel => {
                     const channelItem = document.createElement('div');
                     channelItem.className = 'channel-item';
-                    channelItem.innerHTML = 
+                    channelItem.innerHTML = `
                         <strong>${channel.name}</strong>
-                        ${channel.logo ? <img src="${channel.logo}" alt="${channel.name}" width="50"> : ''}
-                    ;
+                        ${channel.logo ? `<img src="${channel.logo}" alt="${channel.name}" width="50" style="margin-left: 10px;">` : ''}
+                    `;
                     channelItem.addEventListener('click', () => playChannel(channel.url));
                     channelsContainer.appendChild(channelItem);
                 });
@@ -210,8 +200,8 @@
 
             // Manejo de errores
             function handleError(format, error) {
-                console.error(Error en ${format}:, error);
-                status.textContent = Error: No se puede reproducir el canal (${format}).;
+                console.error(`Error en ${format}:`, error);
+                status.textContent = `Error: No se puede reproducir el canal (${format}).`;
             }
         });
     </script>
