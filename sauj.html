@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Video con HLS</title>
+    <title>Reproductor de Video con Video.js</title>
+    <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet" />
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,7 +23,7 @@
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        #video {
+        .video-js {
             width: 100%;
             height: auto;
         }
@@ -33,57 +34,56 @@
             background-color: rgba(0, 0, 0, 0.7);
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
     <div id="video-container">
-        <video id="video" controls></video>
+        <video id="video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264">
+            <source src="http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9666" type="application/x-mpegURL">
+        </video>
         <div id="status">Cargando video...</div>
     </div>
 
+    <script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const video = document.getElementById('video');
-            const status = document.getElementById('status');
             const videoUrl = 'http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9666';
+            const status = document.getElementById('status');
 
-            if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(videoUrl);
-                hls.attachMedia(video);
+            const player = videojs('video', {
+                controls: true,
+                autoplay: true,
+                preload: 'auto',
+                techOrder: ['html5'],
+                sources: [{
+                    src: videoUrl,
+                    type: 'application/x-mpegURL'
+                }]
+            });
 
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    status.textContent = 'Video listo para reproducir';
-                    video.play();
-                });
+            player.ready(function () {
+                status.textContent = 'Video listo para reproducir';
+            });
 
-                hls.on(Hls.Events.ERROR, function (event, data) {
-                    if (data.fatal) {
-                        switch (data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                status.textContent = 'Error de red. Intentando reconectar...';
-                                hls.startLoad();
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                status.textContent = 'Error de video. Recargando...';
-                                hls.recoverMediaError();
-                                break;
-                            default:
-                                hls.destroy();
-                                status.textContent = 'Error crítico. No se puede reproducir el video.';
-                                break;
-                        }
-                    }
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoUrl;
-                video.addEventListener('loadedmetadata', function () {
-                    status.textContent = 'Video listo para reproducir';
-                    video.play();
-                });
-            } else {
-                status.textContent = 'Tu navegador no soporta la reproducción de video HLS.';
-            }
+            player.on('error', function () {
+                const error = player.error();
+                switch (error.code) {
+                    case 1:
+                        status.textContent = 'Error: El video no se pudo cargar. Verifica la URL.';
+                        break;
+                    case 2:
+                        status.textContent = 'Error: El formato de video no es compatible.';
+                        break;
+                    case 3:
+                        status.textContent = 'Error: El video no se pudo descargar debido a un problema de red.';
+                        break;
+                    case 4:
+                        status.textContent = 'Error: El video no se puede reproducir.';
+                        break;
+                    default:
+                        status.textContent = 'Error desconocido.';
+                        break;
+                }
+            });
         });
     </script>
 </body>
