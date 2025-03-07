@@ -20,7 +20,7 @@
         #video-container {
             width: 80%;
             max-width: 800px;
-            background-color: #000;
+            background-color: #000; /* Fondo negro */
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -29,6 +29,21 @@
         .video-js {
             width: 100%;
             height: auto;
+            background-color: #000; /* Fondo negro */
+        }
+        /* Cambiar el color de los botones a blanco */
+        .video-js .vjs-control-bar {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .video-js .vjs-play-control,
+        .video-js .vjs-volume-panel,
+        .video-js .vjs-fullscreen-control,
+        .video-js .vjs-progress-control,
+        .video-js .vjs-time-control {
+            color: white; /* Botones blancos */
+        }
+        .video-js .vjs-play-progress {
+            background-color: white; /* Barra de progreso blanca */
         }
         #channel-list {
             width: 80%;
