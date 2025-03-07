@@ -11,13 +11,13 @@
         if (Hls.isSupported()) {
             var video = document.getElementById('video');
             var hls = new Hls();
-            hls.loadSource('http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9666');
+            hls.loadSource('http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9676');
             hls.attachMedia(video);
             hls.on(Hls.Events.MANIFEST_PARSED, function() {
                 video.play();
             });
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = 'http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9666';
+            video.src = 'http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9676';
             video.addEventListener('loadedmetadata', function() {
                 video.play();
             });
