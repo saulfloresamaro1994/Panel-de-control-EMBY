@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Lista M3U</title>
+    <title>Reproductor de Listas M3U</title>
     <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet" />
     <style>
         body {
@@ -49,9 +49,16 @@
             padding: 10px;
             border-bottom: 1px solid #ddd;
             cursor: pointer;
+            display: flex;
+            align-items: center;
         }
         .channel-item:hover {
             background-color: #f9f9f9;
+        }
+        .channel-item img {
+            margin-left: 10px;
+            width: 50px;
+            height: auto;
         }
         #status {
             color: white;
@@ -59,15 +66,39 @@
             padding: 10px;
             background-color: rgba(0, 0, 0, 0.7);
         }
+        #input-container {
+            margin-bottom: 20px;
+        }
+        #m3u-link {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #load-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #load-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
     <div id="container">
+        <div id="input-container">
+            <input type="text" id="m3u-link" placeholder="Ingrese el enlace de la lista M3U">
+            <button id="load-button" onclick="loadM3U()">Cargar Lista</button>
+        </div>
         <div id="video-container">
             <video id="video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264">
                 <source src="" type="application/x-mpegURL">
             </video>
-            <div id="status">Cargando reproductor...</div>
+            <div id="status">Esperando lista M3U...</div>
         </div>
         <div id="channel-list">
             <h2>Canales Disponibles</h2>
@@ -81,7 +112,6 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const videoUrl = ''; // URL del stream (se actualiza al seleccionar un canal)
             const status = document.getElementById('status');
             const channelsContainer = document.getElementById('channels');
             const player = videojs('video', {
@@ -93,17 +123,25 @@
             });
 
             // Cargar lista M3U
-            const m3uUrl = 'https://raw.githubusercontent.com/saulfloresamaro1994/SKINHEAD94/refs/heads/main/SKINTV5.m3u';
-            fetch(m3uUrl)
-                .then(response => response.text())
-                .then(data => {
-                    const channels = parseM3U(data);
-                    displayChannels(channels);
-                })
-                .catch(error => {
-                    console.error('Error al cargar la lista M3U:', error);
-                    status.textContent = 'Error al cargar la lista de canales.';
-                });
+            function loadM3U() {
+                const m3uUrl = document.getElementById('m3u-link').value;
+                if (!m3uUrl) {
+                    status.textContent = 'Por favor, ingrese un enlace válido.';
+                    return;
+                }
+
+                fetch(m3uUrl)
+                    .then(response => response.text())
+                    .then(data => {
+                        const channels = parseM3U(data);
+                        displayChannels(channels);
+                        status.textContent = `Canales cargados: ${channels.length}`;
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar la lista M3U:', error);
+                        status.textContent = 'Error al cargar la lista de canales.';
+                    });
+            }
 
             // Parsear lista M3U
             function parseM3U(data) {
@@ -113,7 +151,7 @@
 
                 lines.forEach(line => {
                     if (line.startsWith('#EXTINF:')) {
-const info = line.split(',');
+                        const info = line.split(',');
                         channel.name = info[1].trim();
                         channel.logo = info[0].split('tvg-logo="')[1]?.split('"')[0] || '';
                     } else if (line.startsWith('http')) {
@@ -136,7 +174,7 @@ const info = line.split(',');
                     channelItem.className = 'channel-item';
                     channelItem.innerHTML = 
                         <strong>${channel.name}</strong>
-                        ${channel.logo ? <img src="${channel.logo}" alt="${channel.name}" width="50" style="margin-left: 10px;"> : ''}
+                        ${channel.logo ? <img src="${channel.logo}" alt="${channel.name}" width="50"> : ''}
                     ;
                     channelItem.addEventListener('click', () => playChannel(channel.url));
                     channelsContainer.appendChild(channelItem);
