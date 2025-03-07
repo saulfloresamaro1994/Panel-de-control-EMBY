@@ -112,7 +112,8 @@
                 let channel = {};
 
                 lines.forEach(line => {
-                    if (line.startsWith('#EXTINF:')) {const info = line.split(',');
+                    if (line.startsWith('#EXTINF:')) {
+const info = line.split(',');
                         channel.name = info[1].trim();
                         channel.logo = info[0].split('tvg-logo="')[1]?.split('"')[0] || '';
                     } else if (line.startsWith('http')) {
