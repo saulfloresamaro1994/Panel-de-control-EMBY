@@ -15,7 +15,7 @@
 
   <main>
     <div class="video-container">
-      <video id="my-video" class="video-js" controls preload="auto" width="800" height="450" data-setup="{}">
+      <video id="my-video" class="video-js" controls preload="auto" width="640" height="360" data-setup="{}">
         <source src="" type="application/x-mpegURL">
         <p class="vjs-no-js">
           Para ver este video, habilita JavaScript o considera actualizar a un navegador que soporte HTML5 video.
@@ -25,8 +25,9 @@
 
     <!-- Botones para cambiar de canal -->
     <div class="canales">
-      <button onclick="cambiarCanal('canal1')">HBO Plus</button>
-      <button onclick="cambiarCanal('canal2')">HBO Family</button>
+      <button onclick="cambiarCanal('canal1')">Canal 1</button>
+      <button onclick="cambiarCanal('canal2')">Canal 2</button>
+      <button onclick="cambiarCanal('canal3')">Canal 3</button>
     </div>
   </main>
 
@@ -38,73 +39,42 @@
   <script src="script.js"></script>
 </body>
 </html>
-/* styles.css */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #000; /* Fondo negro */
-  color: #fff; /* Texto blanco */
-}
 
-header {
-  background-color: #111; /* Fondo oscuro para el header */
-  color: #fff;
-  padding: 20px;
-  text-align: center;
-}
-
-main {
-  padding: 20px;
-  text-align: center;
-}
-
-.video-container {
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: #222; /* Fondo oscuro para el contenedor del video */
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.canales {
-  margin-top: 20px;
-}
-
-.canales button {
-  background-color: #fff; /* Botones blancos */
-  color: #000; /* Texto negro */
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-}
-
-.canales button:hover {
-  background-color: #ddd; /* Efecto hover para los botones */
-}
-
-footer {
-  background-color: #111; /* Fondo oscuro para el footer */
-  color: #fff;
-  text-align: center;
-  padding: 10px;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-}
 // script.js
 // Inicializar el reproductor de Video.js
 const videoPlayer = videojs('my-video');
 
 // Definir las URLs de los canales
 const streams = {
-  canal1: 'https://streamer1.nexgen.bz/HBO_PLUS/tracks-v1a2/mono.m3u8', // Canal 1 (HBO Plus)
-  canal2: 'https://streamer1.nexgen.bz/HBO_FAMILY/tracks-v1a2/mono.m3u8', // Canal 2 (HBO Family)
+  canal1: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', // Ejemplo de HLS
+  canal2: 'https://test-streams.mux.dev/test_001/stream.m3u8',  // Otro ejemplo de HLS
+  canal3: 'https://test-streams.mux.dev/bbb_30fps/bbb_30fps.m3u8', // Tercer ejemplo de HLS
+};
+
+// Función para cambiar de canal
+function cambiarCanal(canal) {
+  if (streams[canal]) {
+    videoPlayer.src({ src: streams[canal], type: 'application/x-mpegURL' });
+    videoPlayer.play(); // Reproducir automáticamente
+  } else {
+    console.error('Canal no encontrado:', canal);
+  }
+}
+
+// Opcional: Cargar un canal por defecto al iniciar
+document.addEventListener('DOMContentLoaded', () => {
+  cambiarCanal('canal1'); // Cargar el primer canal al iniciar
+});
+
+// script.js
+// Inicializar el reproductor de Video.js
+const videoPlayer = videojs('my-video');
+
+// Definir las URLs de los canales
+const streams = {
+  canal1: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', // Ejemplo de HLS
+  canal2: 'https://test-streams.mux.dev/test_001/stream.m3u8',  // Otro ejemplo de HLS
+  canal3: 'https://test-streams.mux.dev/bbb_30fps/bbb_30fps.m3u8', // Tercer ejemplo de HLS
 };
 
 // Función para cambiar de canal
