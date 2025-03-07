@@ -2,26 +2,89 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reproducir Stream</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de Video con HLS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #video-container {
+            width: 80%;
+            max-width: 800px;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #video {
+            width: 100%;
+            height: auto;
+        }
+        #status {
+            color: white;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-    <video id="video" controls></video>
+    <div id="video-container">
+        <video id="video" controls></video>
+        <div id="status">Cargando video...</div>
+    </div>
+
     <script>
-        if (Hls.isSupported()) {
-            var video = document.getElementById('video');
-            var hls = new Hls();
-            hls.loadSource('http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9676');
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                video.play();
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = 'http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9676';
-            video.addEventListener('loadedmetadata', function() {
-                video.play();
-            });
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            const video = document.getElementById('video');
+            const status = document.getElementById('status');
+            const videoUrl = 'http://tv.proyectox.vip:8080/lopjorgetv2/B2HcOqCMW0/9666';
+
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(videoUrl);
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    status.textContent = 'Video listo para reproducir';
+                    video.play();
+                });
+
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                status.textContent = 'Error de red. Intentando reconectar...';
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                status.textContent = 'Error de video. Recargando...';
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                hls.destroy();
+                                status.textContent = 'Error crítico. No se puede reproducir el video.';
+                                break;
+                        }
+                    }
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoUrl;
+                video.addEventListener('loadedmetadata', function () {
+                    status.textContent = 'Video listo para reproducir';
+                    video.play();
+                });
+            } else {
+                status.textContent = 'Tu navegador no soporta la reproducción de video HLS.';
+            }
+        });
     </script>
 </body>
 </html>
