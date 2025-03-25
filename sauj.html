@@ -3,217 +3,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Listas M3U</title>
-    <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet" />
+    <title>Panel de Control de Emby</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
             margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
+            padding: 0;
         }
-        #container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #video-container {
-            width: 100%;
+        .container {
+            width: 90%;
             max-width: 1200px;
-            background-color: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
-        }
-        .video-js {
-            width: 100%;
-            height: 500px; /* Altura fija para el reproductor */
-        }
-        #channel-list {
-            width: 100%;
-            max-width: 1200px;
+            margin: 20px auto;
             background-color: #fff;
-            border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
-        #channel-list h2 {
-            margin-top: 0;
-        }
-        #channels {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-        .channel-item {
-            flex: 1 1 calc(25% - 10px); /* 4 columnas por fila */
-            padding: 10px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            cursor: pointer;
+        h1 {
             text-align: center;
+            color: #333;
+            font-size: 24px;
         }
-        .channel-item:hover {
-            background-color: #e0e0e0;
+        .form-group {
+            margin-bottom: 15px;
         }
-        #add-m3u {
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        .btn.delete {
+            background-color: #f44336;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Estilos responsivos para dispositivos móviles y tablets */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 20px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .form-group input {
+                padding: 6px;
+                font-size: 14px;
+            }
+            .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            table {
+                font-size: 14px;
+            }
+            th, td {
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 18px;
+            }
+            .container {
+                padding: 10px;
+            }
+            .form-group input {
+                padding: 5px;
+                font-size: 12px;
+            }
+            .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            table {
+                font-size: 12px;
+            }
+            th, td {
+                padding: 6px;
+            }
+        }
+
+        /* Nuevos estilos añadidos para los botones de exportación/importación */
+        .data-actions {
             display: flex;
             gap: 10px;
             margin-top: 20px;
         }
-        #add-m3u input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        .btn.export {
+            background-color: #FF9800;
         }
-        #add-m3u button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .btn.import {
+            background-color: #2196F3;
         }
-        #add-m3u button:hover {
-            background-color: #0056b3;
-        }
-        #status {
-            color: white;
-            text-align: center;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
+        #fileInput {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <!-- Reproductor de video -->
-        <div id="video-container">
-            <video id="video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264">
-                <source src="" type="application/x-mpegURL">
-            </video>
-            <div id="status">Esperando lista M3U...</div>
-        </div>
+    <div class="container">
+        <h1>Panel de Control de Emby</h1>
+        <form id="userForm">
+            <div class="form-group">
+                <label for="email">Correo:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="text" id="password" required>
+            </div>
+            <div class="form-group">
+                <label for="startDate">Día de inicio:</label>
+                <input type="date" id="startDate" required>
+            </div>
+            <div class="form-group">
+                <label for="endDate">Día de finalización:</label>
+                <input type="date" id="endDate" required>
+            </div>
+            <button type="submit" class="btn">Crear Usuario</button>
+        </form>
 
-        <!-- Lista de canales -->
-        <div id="channel-list">
-            <h2>Canales Disponibles</h2>
-            <div id="channels">
-                <!-- Aquí se cargarán los canales -->
-            </div>
-            <div id="add-m3u">
-                <input type="text" id="m3u-url" placeholder="Pega aquí el enlace de la lista M3U">
-                <button onclick="loadM3U()">Cargar Lista</button>
-            </div>
+        <h2>Lista de Usuarios</h2>
+        <table id="usersTable">
+            <thead>
+                <tr>
+                    <th>Correo</th>
+                    <th>Día de Inicio</th>
+                    <th>Día de Finalización</th>
+                    <th>Días Restantes</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los usuarios se cargarán aquí dinámicamente -->
+            </tbody>
+        </table>
+
+        <!-- Nuevos botones añadidos aquí -->
+        <div class="data-actions">
+            <button class="btn export" id="exportBtn">Exportar Datos</button>
+            <button class="btn import" id="importBtn">Importar Datos</button>
+            <input type="file" id="fileInput" accept=".json">
         </div>
     </div>
 
-    <script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const status = document.getElementById('status');
-            const channelsContainer = document.getElementById('channels');
-            const player = videojs('video', {
-                controls: true,
-                autoplay: true,
-                preload: 'auto',
-                techOrder: ['html5'],
-                sources: []
+        const apiKey = '2ea4cebc8a9441c8afe388a7f6d609f5'; // Nueva API Key
+        const localUrl = 'http://192.168.1.65:8096';
+        const remoteUrl = 'http://mxcuentas.ddns.net:8096';
+
+        // Función para detectar si estamos en la red local
+        async function esRedLocal() {
+            try {
+                // Intentamos acceder a un recurso local (puede ser cualquier URL local)
+                const response = await fetch(localUrl, { method: 'HEAD', mode: 'no-cors' });
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // Función para obtener la URL del servidor basada en la ubicación
+        async function obtenerUrlServidor() {
+            const enLocal = await esRedLocal();
+            console.log('Estamos en red local:', enLocal);
+            return enLocal ? localUrl : remoteUrl;
+        }
+
+        // Función para guardar datos en localStorage
+        function guardarUsuarios(usuarios) {
+            localStorage.setItem('usuarios', JSON.stringify(usuarios));
+        }
+
+        // Función para cargar datos desde localStorage
+        function cargarUsuariosDesdeLocalStorage() {
+            const usuariosGuardados = localStorage.getItem('usuarios');
+            return usuariosGuardados ? JSON.parse(usuariosGuardados) : [];
+        }
+
+        // Almacenamiento local para los usuarios (simulado)
+        let usuarios = cargarUsuariosDesdeLocalStorage();
+
+        // Función para calcular los días restantes
+        function calcularDiasRestantes(fechaFin) {
+            const hoy = new Date();
+            const fin = new Date(fechaFin);
+            const diferencia = fin - hoy;
+            return Math.ceil(diferencia / (1000 * 60 * 60 * 24));
+        }
+
+        // Función para agregar un usuario a la tabla
+        function agregarUsuarioATabla(usuario) {
+            const tabla = document.getElementById('usersTable').getElementsByTagName('tbody')[0];
+            const fila = tabla.insertRow();
+
+            const celdas = [
+                usuario.email,
+                usuario.startDate,
+                usuario.endDate,
+                calcularDiasRestantes(usuario.endDate),
+                `<button class="btn delete" onclick="eliminarUsuario('${usuario.id}')">Eliminar</button>`
+            ];
+
+            celdas.forEach((texto, index) => {
+                const celda = fila.insertCell(index);
+                celda.innerHTML = texto;
             });
+        }
 
-            let channels = []; // Lista de canales
+        // Función para eliminar un usuario
+        async function eliminarUsuario(userId) {
+            if (confirm('¿Estás seguro de eliminar este usuario?')) {
+                try {
+                    const urlServidor = await obtenerUrlServidor();
+                    const response = await fetch(`${urlServidor}/emby/Users/${userId}?api_key=${apiKey}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        alert('Usuario eliminado correctamente');
+                        // Eliminar el usuario del almacenamiento local
+                        usuarios = usuarios.filter(u => u.id !== userId);
+                        guardarUsuarios(usuarios); // Guardar cambios en localStorage
+                        cargarUsuarios();
+                    } else {
+                        alert('Error al eliminar el usuario');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        }
 
-            // Función para cargar una lista M3U
-            window.loadM3U = function () {
-                const url = document.getElementById('m3u-url').value.trim();
-                if (url && url.startsWith('http')) {
-                    fetch(url)
-                        .then(response => response.text())
-                        .then(data => {
-                            channels = parseM3U(data);
-                            displayChannels(channels);
-                            status.textContent = 'Lista M3U cargada correctamente.';
-                        })
-                        .catch(error => {
-                            console.error('Error al cargar la lista M3U:', error);
-                            status.textContent = 'Error al cargar la lista M3U.';
-                        });
+        // Función para cargar los usuarios
+        async function cargarUsuarios() {
+            try {
+                const urlServidor = await obtenerUrlServidor();
+                console.log('Usando URL del servidor:', urlServidor);
+                const response = await fetch(`${urlServidor}/emby/Users?api_key=${apiKey}`);
+                const data = await response.json();
+                const tabla = document.getElementById('usersTable').getElementsByTagName('tbody')[0];
+                tabla.innerHTML = ''; // Limpiar la tabla antes de cargar los usuarios
+
+                // Combinar los usuarios de Emby con los datos locales (días de inicio y finalización)
+                data.forEach(usuarioEmby => {
+                    const usuarioLocal = usuarios.find(u => u.id === usuarioEmby.Id);
+                    const usuarioInfo = {
+                        id: usuarioEmby.Id,
+                        email: usuarioEmby.Name,
+                        startDate: usuarioLocal ? usuarioLocal.startDate : 'No definido',
+                        endDate: usuarioLocal ? usuarioLocal.endDate : 'No definido'
+                    };
+                    agregarUsuarioATabla(usuarioInfo);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                // Mostrar mensaje de error al usuario
+                alert('Error al conectar con el servidor. Verifica tu conexión de red.');
+            }
+        }
+
+        // Manejar el envío del formulario
+        document.getElementById('userForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            try {
+                const urlServidor = await obtenerUrlServidor();
+                const response = await fetch(`${urlServidor}/emby/Users/New?api_key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Name: email,
+                        Password: password
+                    })
+                });
+                if (response.ok) {
+                    const nuevoUsuario = await response.json();
+                    // Guardar los días de inicio y finalización en el almacenamiento local
+                    usuarios.push({
+                        id: nuevoUsuario.Id,
+                        email: email,
+                        startDate: startDate,
+                        endDate: endDate
+                    });
+                    guardarUsuarios(usuarios); // Guardar cambios en localStorage
+                    alert('Usuario creado correctamente');
+                    cargarUsuarios();
                 } else {
-                    alert('Por favor, ingresa una URL válida.');
+                    alert('Error al crear el usuario');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al conectar con el servidor. Verifica tu conexión de red.');
+            }
+
+            // Limpiar el formulario
+            document.getElementById('userForm').reset();
+        });
+
+        // Funcionalidad de Exportación
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const usuarios = cargarUsuariosDesdeLocalStorage();
+            if (usuarios.length === 0) {
+                alert('No hay datos para exportar');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(usuarios, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `usuarios_emby_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Funcionalidad de Importación
+        document.getElementById('importBtn').addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const contenido = e.target.result;
+                    const datosImportados = JSON.parse(contenido);
+                    
+                    if (!Array.isArray(datosImportados)) {
+                        throw new Error('Formato de archivo inválido');
+                    }
+                    
+                    if (confirm(`¿Importar ${datosImportados.length} usuarios? Esto sobrescribirá los datos actuales.`)) {
+                        localStorage.setItem('usuarios', JSON.stringify(datosImportados));
+                        alert('Datos importados correctamente');
+                        cargarUsuarios(); // Refrescar la tabla
+                    }
+                } catch (error) {
+                    console.error('Error al importar:', error);
+                    alert('Error al importar el archivo. Verifica que sea un JSON válido.');
                 }
             };
-
-            // Parsear lista M3U
-            function parseM3U(data) {
-                const lines = data.split('\n');
-                const channels = [];
-                let channel = {};
-
-                lines.forEach(line => {
-                    if (line.startsWith('#EXTINF:')) {
-                        const info = line.split(',');
-                        channel.name = info[1].trim();
-                        channel.logo = info[0].split('tvg-logo="')[1]?.split('"')[0] || '';
-                    } else if (line.startsWith('http')) {
-                        channel.url = line.trim();
-                        channels.push(channel);
-                        channel = {};
-                    }
-                });
-
-                // Ordenar canales por nombre
-                channels.sort((a, b) => a.name.localeCompare(b.name));
-                return channels;
-            }
-
-            // Mostrar canales en la lista
-            function displayChannels(channels) {
-                channelsContainer.innerHTML = '';
-                channels.forEach(channel => {
-                    const channelItem = document.createElement('div');
-                    channelItem.className = 'channel-item';
-                    channelItem.innerHTML = `
-                        <strong>${channel.name}</strong>
-                        ${channel.logo ? `<img src="${channel.logo}" alt="${channel.name}" width="50" style="margin-left: 10px;">` : ''}
-                    `;
-                    channelItem.addEventListener('click', () => playChannel(channel.url));
-                    channelsContainer.appendChild(channelItem);
-                });
-            }
-
-            // Reproducir un canal
-            function playChannel(url) {
-                if (Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.loadSource(url);
-                    hls.attachMedia(player.tech().el());
-                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                        status.textContent = 'Reproduciendo...';
-                    });
-                    hls.on(Hls.Events.ERROR, function (event, data) {
-                        handleError('HLS', data);
-                    });
-                } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-                    player.src({ src: url, type: 'application/x-mpegURL' });
-                    status.textContent = 'Reproduciendo...';
-                } else {
-                    status.textContent = 'Tu navegador no soporta HLS.';
-                }
-            }
-
-            // Manejo de errores
-            function handleError(format, error) {
-                console.error(`Error en ${format}:`, error);
-                status.textContent = `Error: No se puede reproducir el canal (${format}).`;
-            }
+            reader.readAsText(file);
+            event.target.value = ''; // Resetear el input
         });
+
+        // Cargar los usuarios al iniciar la página
+        window.onload = cargarUsuarios;
     </script>
 </body>
 </html>
