@@ -65,7 +65,6 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
-            width: 100%;
             font-weight: 500;
             transition: all 0.3s;
             display: flex;
@@ -99,6 +98,16 @@
         }
         .btn-info:hover {
             background-color: #1098ad;
+        }
+        .btn-success {
+            background-color: #40c057;
+        }
+        .btn-success:hover {
+            background-color: #37b24d;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
         }
         table {
             width: 100%;
@@ -140,29 +149,24 @@
         .user-email {
             font-weight: 500;
             color: #2b2d42;
-            margin-bottom: 3px;
-        }
-        .user-id {
-            font-size: 12px;
-            color: #6c757d;
         }
         .date-range {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
         .date-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .date-label {
             font-size: 12px;
             color: #6c757d;
-            min-width: 50px;
+            min-width: 40px;
         }
         .date-value {
-            font-weight: 500;
+            font-size: 14px;
             color: #495057;
         }
         .days-remaining {
@@ -172,18 +176,26 @@
             font-weight: 600;
             text-align: center;
             font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .days-remaining:hover {
+            transform: scale(1.05);
         }
         .days-positive {
             background-color: #ebfbee;
             color: #2b8a3e;
+            border: 1px solid #40c057;
         }
         .days-warning {
             background-color: #fff3bf;
             color: #e67700;
+            border: 1px solid #ffd43b;
         }
         .days-negative {
             background-color: #ffebee;
             color: #c92a2a;
+            border: 1px solid #ff6b6b;
         }
         .actions {
             display: flex;
@@ -209,7 +221,6 @@
             flex-wrap: wrap;
         }
         .data-actions .btn {
-            width: auto;
             flex: 1;
             min-width: 180px;
         }
@@ -218,22 +229,27 @@
         }
         .status-badge {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 90px;
         }
         .status-active {
             background-color: #ebfbee;
             color: #2b8a3e;
+            border: 1px solid #40c057;
         }
-        .status-inactive {
+        .status-warning {
             background-color: #fff3bf;
             color: #e67700;
+            border: 1px solid #ffd43b;
         }
         .status-expired {
             background-color: #ffebee;
             color: #c92a2a;
+            border: 1px solid #ff6b6b;
         }
         .empty-state {
             text-align: center;
@@ -249,6 +265,61 @@
             font-weight: 500;
             margin-bottom: 10px;
             color: #495057;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .extend-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .extend-input {
+            width: 80px;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            text-align: center;
         }
 
         @media (max-width: 768px) {
@@ -279,6 +350,10 @@
             th, td {
                 padding: 10px 12px;
             }
+            .status-badge {
+                min-width: auto;
+                padding: 4px 8px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -291,6 +366,10 @@
             table {
                 display: block;
                 overflow-x: auto;
+            }
+            .modal-content {
+                margin: 20px auto;
+                width: 95%;
             }
         }
     </style>
@@ -358,10 +437,51 @@
         </div>
     </div>
 
+    <!-- Modal para extender días -->
+    <div id="extendModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Extender Suscripción</div>
+                <span class="close-modal">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="user-info">
+                    <span class="user-email" id="modalUserEmail"></span>
+                    <div class="date-range" style="margin-top: 10px;">
+                        <div class="date-item">
+                            <span class="date-label">Fin actual:</span>
+                            <span class="date-value" id="modalCurrentEnd"></span>
+                        </div>
+                        <div class="date-item">
+                            <span class="date-label">Nuevo fin:</span>
+                            <span class="date-value" id="modalNewEnd"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="extend-form" style="margin-top: 20px;">
+                    <label for="extendDays">Agregar días:</label>
+                    <input type="number" id="extendDays" class="extend-input" min="1" value="30">
+                    <button id="confirmExtend" class="btn btn-success btn-sm">Aplicar</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelExtend" class="btn btn-danger">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const apiKey = '2ea4cebc8a9441c8afe388a7f6d609f5';
         const localUrl = 'http://192.168.1.65:8096';
         const remoteUrl = 'http://mxcuentas.ddns.net:8096';
+
+        // Variables para el modal
+        const extendModal = document.getElementById('extendModal');
+        const closeModal = document.querySelector('.close-modal');
+        const cancelExtend = document.getElementById('cancelExtend');
+        const confirmExtend = document.getElementById('confirmExtend');
+        const extendDaysInput = document.getElementById('extendDays');
+        let currentExtendUserId = null;
 
         // Función para detectar si estamos en la red local
         async function esRedLocal() {
@@ -411,7 +531,7 @@
                 diasClass = 'days-negative';
             } else if (diasRestantes <= 7) {
                 estado = 'warning';
-                estadoClass = 'status-inactive';
+                estadoClass = 'status-warning';
                 diasClass = 'days-warning';
             }
             
@@ -421,6 +541,13 @@
                 estadoClass,
                 diasClass
             };
+        }
+
+        // Función para formatear fecha
+        function formatearFecha(fechaStr) {
+            if (!fechaStr || fechaStr === 'No definido') return fechaStr;
+            const fecha = new Date(fechaStr);
+            return fecha.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
         }
 
         // Función para agregar un usuario a la tabla
@@ -437,7 +564,7 @@
             `;
             
             const diasHTML = `
-                <span class="days-remaining ${diasClass}">
+                <span class="days-remaining ${diasClass}" onclick="mostrarModalExtender('${usuario.id}', '${usuario.email}', '${usuario.endDate}')">
                     ${diasRestantes > 0 ? diasRestantes + ' días' : 'Expirado'}
                 </span>
             `;
@@ -446,11 +573,11 @@
                 <div class="date-range">
                     <div class="date-item">
                         <span class="date-label">Inicio:</span>
-                        <span class="date-value">${usuario.startDate}</span>
+                        <span class="date-value">${formatearFecha(usuario.startDate)}</span>
                     </div>
                     <div class="date-item">
                         <span class="date-label">Fin:</span>
-                        <span class="date-value">${usuario.endDate}</span>
+                        <span class="date-value">${formatearFecha(usuario.endDate)}</span>
                     </div>
                 </div>
             `;
@@ -459,7 +586,6 @@
                 `
                 <div class="user-info">
                     <span class="user-email">${usuario.email}</span>
-                    <span class="user-id">ID: ${usuario.id}</span>
                 </div>
                 `,
                 periodoAccesoHTML,
@@ -478,6 +604,35 @@
                 const celda = fila.insertCell(index);
                 celda.innerHTML = texto;
             });
+        }
+
+        // Función para mostrar el modal de extensión
+        function mostrarModalExtender(userId, userEmail, endDate) {
+            currentExtendUserId = userId;
+            document.getElementById('modalUserEmail').textContent = userEmail;
+            document.getElementById('modalCurrentEnd').textContent = formatearFecha(endDate);
+            
+            // Calcular nueva fecha con 30 días adicionales por defecto
+            const fechaFin = new Date(endDate);
+            const nuevaFecha = new Date(fechaFin);
+            nuevaFecha.setDate(nuevaFecha.getDate() + 30);
+            document.getElementById('modalNewEnd').textContent = formatearFecha(nuevaFecha.toISOString().split('T')[0]);
+            
+            extendModal.style.display = 'block';
+        }
+
+        // Función para extender la suscripción
+        function extenderSuscripcion(userId, dias) {
+            const usuario = usuarios.find(u => u.id === userId);
+            if (!usuario) return;
+            
+            const fechaFin = new Date(usuario.endDate);
+            fechaFin.setDate(fechaFin.getDate() + dias);
+            usuario.endDate = fechaFin.toISOString().split('T')[0];
+            
+            guardarUsuarios(usuarios);
+            cargarUsuarios();
+            extendModal.style.display = 'none';
         }
 
         // Función para eliminar un usuario
@@ -664,6 +819,45 @@
             };
             reader.readAsText(file);
             event.target.value = '';
+        });
+
+        // Event listeners para el modal
+        closeModal.addEventListener('click', () => {
+            extendModal.style.display = 'none';
+        });
+
+        cancelExtend.addEventListener('click', () => {
+            extendModal.style.display = 'none';
+        });
+
+        confirmExtend.addEventListener('click', () => {
+            const dias = parseInt(extendDaysInput.value);
+            if (dias > 0 && currentExtendUserId) {
+                extenderSuscripcion(currentExtendUserId, dias);
+            }
+        });
+
+        extendDaysInput.addEventListener('input', () => {
+            const dias = parseInt(extendDaysInput.value) || 0;
+            if (dias < 1) {
+                extendDaysInput.value = 1;
+                return;
+            }
+            
+            const usuario = usuarios.find(u => u.id === currentExtendUserId);
+            if (!usuario) return;
+            
+            const fechaFin = new Date(usuario.endDate);
+            const nuevaFecha = new Date(fechaFin);
+            nuevaFecha.setDate(nuevaFecha.getDate() + dias);
+            document.getElementById('modalNewEnd').textContent = formatearFecha(nuevaFecha.toISOString().split('T')[0]);
+        });
+
+        // Cerrar modal al hacer clic fuera del contenido
+        window.addEventListener('click', (event) => {
+            if (event.target === extendModal) {
+                extendModal.style.display = 'none';
+            }
         });
 
         // Cargar los usuarios al iniciar la página
