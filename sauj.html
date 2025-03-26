@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -32,7 +32,7 @@
             margin: 0;
             padding: 20px;
             color: var(--text-color);
-            font-size: 16px; /* Tamaño base aumentado */
+            font-size: 16px;
         }
 
         .container {
@@ -48,7 +48,7 @@
 
         .header h1 {
             color: var(--text-color);
-            font-size: 32px; /* Aumentado de 28px */
+            font-size: 32px;
             font-weight: 600;
             margin-bottom: 10px;
             display: flex;
@@ -68,7 +68,7 @@
         }
 
         .card-title {
-            font-size: 24px; /* Aumentado de 20px */
+            font-size: 24px;
             font-weight: 500;
             margin-bottom: 20px;
             display: flex;
@@ -87,16 +87,16 @@
             margin-bottom: 6px;
             font-weight: 500;
             color: var(--text-color);
-            font-size: 16px; /* Aumentado de 14px */
+            font-size: 16px;
         }
 
         .form-control {
             width: 100%;
-            padding: 12px 14px; /* Aumentado ligeramente */
+            padding: 12px 14px;
             box-sizing: border-box;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            font-size: 16px; /* Aumentado de 15px */
+            font-size: 16px;
             transition: all 0.3s;
             background-color: #2a2a2a;
             color: var(--text-color);
@@ -116,7 +116,7 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 17px; /* Aumentado de 16px */
+            font-size: 17px;
             font-weight: 500;
             transition: all 0.3s;
             display: inline-flex;
@@ -197,18 +197,25 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .user-email {
+        .user-name {
             font-weight: 600;
             color: var(--text-color);
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .user-email {
+            font-weight: 400;
+            color: var(--text-light);
             word-break: break-all;
-            font-size: 17px; /* Aumentado */
+            font-size: 15px;
         }
 
         .user-status {
             display: inline-block;
             padding: 6px 10px;
             border-radius: 20px;
-            font-size: 14px; /* Aumentado de 13px */
+            font-size: 14px;
             font-weight: 600;
             text-align: center;
             min-width: 90px;
@@ -243,12 +250,12 @@
         }
 
         .date-label {
-            font-size: 15px; /* Aumentado de 14px */
+            font-size: 15px;
             color: var(--text-light);
         }
 
         .date-value {
-            font-size: 15px; /* Aumentado de 14px */
+            font-size: 15px;
             font-weight: 500;
             color: var(--text-color);
         }
@@ -268,7 +275,7 @@
             border-radius: 20px;
             font-weight: 600;
             text-align: center;
-            font-size: 15px; /* Aumentado de 14px */
+            font-size: 15px;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -314,11 +321,11 @@
             font-weight: 500;
             margin-bottom: 10px;
             color: var(--text-color);
-            font-size: 20px; /* Aumentado */
+            font-size: 20px;
         }
 
         .empty-state p {
-            font-size: 16px; /* Aumentado */
+            font-size: 16px;
         }
 
         /* Modal styles */
@@ -352,20 +359,20 @@
         }
 
         .modal-title {
-            font-size: 22px; /* Aumentado de 20px */
+            font-size: 22px;
             font-weight: 600;
             color: var(--text-color);
         }
 
         .close-modal {
-            font-size: 28px; /* Aumentado de 24px */
+            font-size: 28px;
             cursor: pointer;
             color: var(--text-light);
         }
 
         .modal-body {
             margin-bottom: 20px;
-            font-size: 16px; /* Aumentado */
+            font-size: 16px;
         }
 
         .modal-footer {
@@ -378,18 +385,18 @@
             display: flex;
             gap: 10px;
             align-items: center;
-            font-size: 16px; /* Aumentado */
+            font-size: 16px;
         }
 
         .extend-input {
             width: 80px;
-            padding: 10px 12px; /* Aumentado ligeramente */
+            padding: 10px 12px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             text-align: center;
             background-color: #2a2a2a;
             color: var(--text-color);
-            font-size: 16px; /* Aumentado */
+            font-size: 16px;
         }
 
         /* Data actions */
@@ -422,7 +429,7 @@
 
         @media (max-width: 480px) {
             body {
-                font-size: 15px; /* Ajuste para móviles */
+                font-size: 15px;
                 padding: 15px;
             }
             
@@ -431,7 +438,7 @@
             }
             
             .card-title {
-                font-size: 20px; /* Ajuste para móviles */
+                font-size: 20px;
             }
             
             .user-actions {
@@ -449,7 +456,7 @@
             }
             
             .modal-title {
-                font-size: 20px; /* Ajuste para móviles */
+                font-size: 20px;
             }
         }
     </style>
@@ -464,6 +471,10 @@
         <div class="card">
             <h2 class="card-title"><i class="fas fa-user-plus"></i> Crear Nuevo Usuario</h2>
             <form id="userForm">
+                <div class="form-group">
+                    <label for="name">Nombre del Usuario:</label>
+                    <input type="text" id="name" class="form-control" required placeholder="Nombre completo o apodo">
+                </div>
                 <div class="form-group">
                     <label for="email">Correo Electrónico:</label>
                     <input type="email" id="email" class="form-control" required placeholder="ejemplo@dominio.com">
@@ -520,6 +531,7 @@
             </div>
             <div class="modal-body">
                 <div class="user-info">
+                    <div class="user-name" id="modalUserName"></div>
                     <span class="user-email" id="modalUserEmail"></span>
                     <div class="user-dates" style="margin-top: 10px;">
                         <div class="date-item">
@@ -635,7 +647,7 @@
             `;
             
             const diasHTML = `
-                <span class="days-remaining ${diasClass}" onclick="mostrarModalExtender('${usuario.id}', '${usuario.email}', '${usuario.endDate}')">
+                <span class="days-remaining ${diasClass}" onclick="mostrarModalExtender('${usuario.id}', '${usuario.name}', '${usuario.email}', '${usuario.endDate}')">
                     ${diasRestantes > 0 ? diasRestantes + ' días' : 'Expirado'}
                 </span>
             `;
@@ -643,7 +655,10 @@
             const cardHTML = `
                 <div class="user-card">
                     <div class="user-header">
-                        <span class="user-email">${usuario.email}</span>
+                        <div>
+                            <div class="user-name">${usuario.name || 'Sin nombre'}</div>
+                            <div class="user-email">${usuario.email}</div>
+                        </div>
                         ${estadoHTML}
                     </div>
                     <div class="user-dates">
@@ -671,8 +686,9 @@
         }
 
         // Función para mostrar el modal de extensión
-        function mostrarModalExtender(userId, userEmail, endDate) {
+        function mostrarModalExtender(userId, userName, userEmail, endDate) {
             currentExtendUserId = userId;
+            document.getElementById('modalUserName').textContent = userName || 'Sin nombre';
             document.getElementById('modalUserEmail').textContent = userEmail;
             document.getElementById('modalCurrentEnd').textContent = formatearFecha(endDate);
             
@@ -755,6 +771,7 @@
                     const usuarioLocal = usuarios.find(u => u.id === usuarioEmby.Id);
                     const usuarioInfo = {
                         id: usuarioEmby.Id,
+                        name: usuarioLocal ? usuarioLocal.name : 'No definido',
                         email: usuarioEmby.Name,
                         startDate: usuarioLocal ? usuarioLocal.startDate : 'No definido',
                         endDate: usuarioLocal ? usuarioLocal.endDate : 'No definido'
@@ -772,12 +789,13 @@
         document.getElementById('userForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const name = document.getElementById('name').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             
-            if (!email || !password || !startDate || !endDate) {
+            if (!name || !email || !password || !startDate || !endDate) {
                 alert('Por favor complete todos los campos');
                 return;
             }
@@ -798,9 +816,10 @@
                 if (response.ok) {
                     const nuevoUsuario = await response.json();
                     
-                    // Guardar los días de inicio y finalización
+                    // Guardar los datos del usuario incluyendo el nombre
                     usuarios.push({
                         id: nuevoUsuario.Id,
+                        name: name,
                         email: email,
                         startDate: startDate,
                         endDate: endDate
@@ -945,4 +964,4 @@
         });
     </script>
 </body>
-</html>            
+</html>
