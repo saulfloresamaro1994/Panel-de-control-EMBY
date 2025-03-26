@@ -202,6 +202,17 @@
             color: var(--text-color);
             font-size: 18px;
             margin-bottom: 5px;
+            outline: none;
+        }
+
+        .user-name[contenteditable="true"] {
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+
+        .user-name[contenteditable="true"]:focus {
+            background-color: #333;
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.5);
         }
 
         .user-email {
@@ -656,7 +667,9 @@
                 <div class="user-card">
                     <div class="user-header">
                         <div>
-                            <div class="user-name">${usuario.name || 'Sin nombre'}</div>
+                            <div class="user-name" contenteditable="true" onblur="actualizarNombreUsuario('${usuario.id}', this.textContent)">
+                                ${usuario.name || 'Sin nombre'}
+                            </div>
                             <div class="user-email">${usuario.email}</div>
                         </div>
                         ${estadoHTML}
@@ -683,6 +696,15 @@
             `;
             
             return cardHTML;
+        }
+
+        // Función para actualizar el nombre del usuario
+        function actualizarNombreUsuario(userId, nuevoNombre) {
+            const usuario = usuarios.find(u => u.id === userId);
+            if (usuario && nuevoNombre.trim() !== '') {
+                usuario.name = nuevoNombre.trim();
+                guardarUsuarios(usuarios);
+            }
         }
 
         // Función para mostrar el modal de extensión
